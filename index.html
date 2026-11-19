@@ -333,19 +333,31 @@ footer{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .muted{color:var(--mute);font-size:12px;font-weight:600;text-transform:none;letter-spacing:0}
 
 .dock{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:40;
-  width:min(560px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);padding:6px;border-radius:24px;
+  width:min(560px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);padding:10px 6px 6px;border-radius:24px;
   background:linear-gradient(180deg,rgba(16,34,80,.95),rgba(6,13,34,.97));border:1px solid rgba(241,230,211,.2);
   box-shadow:0 18px 40px rgba(20,12,2,.5),inset 0 1px 0 rgba(255,255,255,.1);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.dock-ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/5);border-radius:18px;
-  transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s cubic-bezier(.3,1.25,.5,1);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  touch-action:pan-y;
+  user-select:none;-webkit-user-select:none;
+  cursor:grab;
+}
+.dock.dragging{cursor:grabbing;touch-action:none}
+.dock-ind{position:absolute;top:10px;bottom:6px;left:6px;width:calc((100% - 12px)/5);border-radius:18px;
+  transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s cubic-bezier(.3,1.25,.5,1),box-shadow .25s,background .25s;
   background:linear-gradient(180deg,rgba(247,229,189,.22),rgba(227,181,103,.07));border:1px solid rgba(227,181,103,.45);box-shadow:0 0 18px rgba(227,181,103,.2)}
+.dock.dragging .dock-ind{transition:none;box-shadow:0 0 26px rgba(227,181,103,.38);background:linear-gradient(180deg,rgba(247,229,189,.32),rgba(227,181,103,.14))}
+.dock-handle{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:34px;height:4px;border-radius:99px;background:rgba(241,230,211,.32);pointer-events:none;z-index:3;transition:background .2s,width .2s;animation:handleHint 2.8s ease 1.2s 2}
+.dock.dragging .dock-handle{width:44px;background:rgba(241,230,211,.58);animation:none}
+@keyframes handleHint{0%,100%{opacity:1;transform:translateX(-50%) scaleX(1)}50%{opacity:.65;transform:translateX(-50%) scaleX(1.35)}}
 .dock-btn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 8px;background:none;border:0;
-  color:var(--mute);font:700 11px var(--font);letter-spacing:.04em;transition:color .25s}
+  color:var(--mute);font:700 11px var(--font);letter-spacing:.04em;transition:color .25s,transform .15s;touch-action:manipulation}
 .dock-btn:hover{color:var(--txt)}
-.dock-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.dock-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
 .dock-btn.on{color:var(--gold2)}
 .dock-btn.on svg{animation:bob .5s ease}
+.dock.dragging .dock-btn{pointer-events:none}
+.dock-btn.drag-preview{color:var(--gold2);transform:scale(1.06)}
+.dock-btn.drag-preview svg{transform:translateY(-2px) scale(1.08)}
 @keyframes bob{0%{transform:none}40%{transform:translateY(-5px) scale(1.14)}100%{transform:none}}
 
 /* halaman target */
@@ -397,9 +409,29 @@ body.noscroll{overflow:hidden}
 .dw-brand{display:flex;align-items:center;gap:8px;min-width:0;font-weight:800;letter-spacing:.03em;font-size:clamp(11.5px,3.3vw,14px);color:var(--gold2)}
 .dw-brand span{min-width:0}
 .dw-brand svg{width:26px;height:26px;flex:none}
-.dw-mode{flex:none;font:800 10px var(--font);letter-spacing:.1em;padding:5px 9px;border-radius:99px;border:1px solid}
-.dw-mode.sim{color:#ffd88a;border-color:rgba(255,216,138,.5);background:rgba(255,216,138,.1)}
-.dw-mode.live{color:#7dffc8;border-color:rgba(125,255,200,.5);background:rgba(125,255,200,.1)}
+.dw-mode{flex:none;font:800 10px var(--font);letter-spacing:.1em;padding:5px 11px;border-radius:99px;border:1px solid;position:relative;overflow:hidden}
+.dw-mode.sim{
+  color:#14100a;
+  background:linear-gradient(100deg,#8a6516,#ffe39a 18%,#f5c451 35%,#c58d1b 52%,#ffe9b0 72%,#8a6516);
+  background-size:220% auto;
+  border-color:rgba(197,141,27,.88);
+  box-shadow:0 3px 14px rgba(197,141,27,.38),0 0 0 1px rgba(255,255,255,.22) inset,0 1px 0 rgba(255,255,255,.7) inset;
+  animation:bankProShine 3s linear infinite;
+  text-shadow:0 1px 0 rgba(255,255,255,.45);
+  letter-spacing:.1em;
+  font-weight:900;
+}
+.dw-mode.sim::after{
+  content:"";
+  position:absolute;top:0;left:-70%;width:46%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.88),transparent);
+  transform:skewX(-18deg);
+  animation:bankProSweep 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes bankProShine{to{background-position:220% center}}
+@keyframes bankProSweep{0%{left:-70%}45%,100%{left:130%}}
+.dw-mode.live{color:#7dffc8;border-color:rgba(125,255,200,.5);background:rgba(125,255,200,.12)}
 .dw-label{position:relative;z-index:1;margin-top:26px;display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px;letter-spacing:.04em}
 .dw-eye{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt)}
 .dw-eye svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -568,7 +600,7 @@ body.noscroll{overflow:hidden}
             <svg viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="11" fill="#0b1630" stroke="#e3b567" stroke-width="2"/><path d="M24 8 8 18h32L24 8Zm-13 12v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4ZM8 37v4h32v-4H8Z" fill="#e3b567"/></svg>
             <span>TABUNGAN DIGITAL BILY</span>
           </div>
-          <span class="dw-mode sim" id="dMode">SIMULASI</span>
+          <span class="dw-mode sim" id="dMode">BANK PRO</span>
         </div>
         <div class="dw-label"><span>Saldo Tabungan</span>
           <button class="dw-eye" id="dEye" type="button" aria-label="Tampilkan atau sembunyikan saldo" aria-pressed="false">
@@ -673,6 +705,7 @@ body.noscroll{overflow:hidden}
 
 
 <nav class="dock" id="dock" aria-label="Navigasi halaman">
+  <div class="dock-handle" aria-hidden="true"></div>
   <span class="dock-ind" aria-hidden="true"></span>
   <button class="dock-btn on" type="button" data-page="beranda" aria-current="page">
     <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Beranda</span>
@@ -1615,7 +1648,7 @@ function countDigBal(from, to){
 
 function renderDigital(){
   var sim = digSim(), m = $('dMode');
-  m.textContent = sim ? 'SIMULASI' : 'TERHUBUNG';
+  m.textContent = sim ? 'BANK PRO' : 'TERHUBUNG';
   m.className = 'dw-mode ' + (sim ? 'sim' : 'live');
   $('dNote').textContent = sim
     ? 'QR ini simulasi dan belum terhubung ke pembayaran asli.'
@@ -1861,12 +1894,166 @@ function showPage(name, init){
   if (name === 'target') renderTarget(true);
   if (name === 'digital') renderDigital();
 }
-$('dock').addEventListener('click', function(e){
-  var b = e.target.closest('.dock-btn'); if (!b) return;
-  var p = b.getAttribute('data-page');
-  showPage(p);
-  if ((location.hash || '') !== '#' + p){ try { location.hash = p; } catch (err) {} }
-});
+(function(){
+  var dock = $('dock');
+  var dragging = false, startX = 0, startI = 0, curI = 0, hasMoved = false, activePointer = null;
+  var isPointerDown = false;
+
+  function getSegment(){
+    var r = dock.getBoundingClientRect();
+    return (r.width - 12) / 5;
+  }
+  function indexFromPage(name){
+    var idx = PAGES.indexOf(name);
+    return idx < 0 ? 0 : idx;
+  }
+  function previewIndex(frac){
+    var all = dock.querySelectorAll('.dock-btn');
+    var rounded = Math.round(frac);
+    for (var k=0;k<all.length;k++) all[k].classList.toggle('drag-preview', k===rounded && dragging);
+  }
+  function onDown(e){
+    if (e.button !== undefined && e.button !== 0) return;
+    var rect = dock.getBoundingClientRect();
+    startX = (e.touches ? e.touches[0].clientX : e.clientX);
+    startI = indexFromPage(curPage);
+    curI = startI;
+    hasMoved = false;
+    isPointerDown = true;
+    activePointer = e.pointerId !== undefined ? e.pointerId : 'mouse';
+  }
+  function onMove(e){
+    if (!isPointerDown) return;
+    var x = (e.touches ? e.touches[0].clientX : e.clientX);
+    var dx = x - startX;
+    if (!dragging && Math.abs(dx) > 6){
+      dragging = true;
+      dock.classList.add('dragging');
+      if (dock.setPointerCapture && activePointer !== 'mouse' && activePointer != null){
+        try { dock.setPointerCapture(activePointer); } catch(err){}
+      }
+    }
+    if (dragging){
+      if (e.cancelable) e.preventDefault();
+      var seg = getSegment();
+      if (!seg) seg = 80;
+      var frac = startI + dx / seg;
+      if (frac < 0) frac = 0;
+      if (frac > 4) frac = 4;
+      curI = frac;
+      dock.style.setProperty('--i', String(frac));
+      previewIndex(frac);
+      hasMoved = true;
+    }
+  }
+  function onUp(e){
+    if (!isPointerDown) return;
+    isPointerDown = false;
+    if (dragging){
+      if (e.cancelable) e.preventDefault();
+      dock.classList.remove('dragging');
+      var all = dock.querySelectorAll('.dock-btn');
+      for (var k=0;k<all.length;k++) all[k].classList.remove('drag-preview');
+      var targetIdx = Math.round(curI);
+      var targetPage = PAGES[targetIdx] || curPage;
+      dock.style.setProperty('--i', String(targetIdx));
+      if (targetPage !== curPage){
+        showPage(targetPage);
+        if ((location.hash || '') !== '#' + targetPage){ try { location.hash = targetPage; } catch(err){} }
+        try { navigator.vibrate && navigator.vibrate(12); } catch(err2){}
+      } else {
+        dock.style.setProperty('--i', String(indexFromPage(curPage)));
+      }
+      dragging = false;
+      hasMoved = true;
+      setTimeout(function(){ hasMoved = false; }, 80);
+      if (dock.releasePointerCapture && activePointer !== 'mouse' && activePointer != null){
+        try { dock.releasePointerCapture(activePointer); } catch(e){}
+      }
+    }
+    activePointer = null;
+  }
+
+  if (window.PointerEvent){
+    dock.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove, {passive:false});
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+  } else {
+    dock.addEventListener('touchstart', onDown, {passive:true});
+    dock.addEventListener('mousedown', onDown);
+    window.addEventListener('touchmove', onMove, {passive:false});
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchend', onUp);
+    window.addEventListener('mouseup', onUp);
+  }
+
+  dock.addEventListener('click', function(e){
+    if (hasMoved) { e.preventDefault(); e.stopPropagation(); return; }
+    var b = e.target.closest('.dock-btn'); if (!b) return;
+    var p = b.getAttribute('data-page');
+    showPage(p);
+    if ((location.hash || '') !== '#' + p){ try { location.hash = p; } catch (err) {} }
+  });
+
+  var _origShowPage = showPage;
+  showPage = function(name, init){
+    var res = _origShowPage(name, init);
+    if (dock && !dragging){
+      dock.style.setProperty('--i', String(indexFromPage(curPage)));
+    }
+    return res;
+  };
+
+  (function(){
+    var lay = document.querySelector('.layout');
+    if (!lay) return;
+    var sx=0, sy=0, st=0, tracking=false;
+    function tStart(e){
+      if (e.touches && e.touches.length !== 1) return;
+      var t = e.touches ? e.touches[0] : e;
+      var tgt = e.target;
+      if (tgt.closest && (tgt.closest('.chart-scroll') || tgt.closest('.sheet') || tgt.closest('.modal') || tgt.closest('.dock') || tgt.closest('input') || tgt.closest('button') || tgt.closest('.dwallet') )) return;
+      sx = t.clientX; sy = t.clientY; st = Date.now(); tracking = true;
+    }
+    function tEnd(e){
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches ? e.changedTouches[0] : e;
+      var dx = t.clientX - sx, dy = t.clientY - sy;
+      var dt = Date.now() - st;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)*1.2 || dt > 600) return;
+      var idx = indexFromPage(curPage);
+      if (dx < 0 && idx < PAGES.length-1){
+        var np = PAGES[idx+1];
+        showPage(np);
+        try { location.hash = np; } catch(err){}
+      } else if (dx > 0 && idx > 0){
+        var pp = PAGES[idx-1];
+        showPage(pp);
+        try { location.hash = pp; } catch(err){}
+      }
+    }
+    lay.addEventListener('touchstart', tStart, {passive:true});
+    lay.addEventListener('touchend', tEnd, {passive:true});
+    var msx=0, msDown=false;
+    lay.addEventListener('mousedown', function(e){
+      if (e.button!==0) return;
+      var tgt=e.target;
+      if (tgt.closest && (tgt.closest('.chart-scroll')||tgt.closest('input')||tgt.closest('button')||tgt.closest('.dwallet'))) return;
+      msx=e.clientX; msDown=true;
+    });
+    lay.addEventListener('mouseup', function(e){
+      if (!msDown) return; msDown=false;
+      var dx=e.clientX - msx;
+      if (Math.abs(dx) < 80) return;
+      var idx=indexFromPage(curPage);
+      if (dx < 0 && idx < PAGES.length-1){ var np=PAGES[idx+1]; showPage(np); try{location.hash=np;}catch(err){} }
+      else if (dx > 0 && idx>0){ var pp=PAGES[idx-1]; showPage(pp); try{location.hash=pp;}catch(err){} }
+    });
+  })();
+
+})();
 window.addEventListener('hashchange', function(){ showPage(pageFromHash()); });
 
 /* ================= MULAI ================= */
