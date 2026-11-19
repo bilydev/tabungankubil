@@ -556,9 +556,7 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
 .pin-key.ok:hover:not(:disabled){box-shadow:0 10px 22px rgba(245,196,81,.38)}
 .pin-key.del{background:rgba(255,77,94,.09);border-color:rgba(255,77,94,.22);font-size:20px}
 .pin-key.del:hover:not(:disabled){background:rgba(255,77,94,.16);border-color:rgba(255,77,94,.35)}
-.pin-hint{position:relative;z-index:1;margin-top:16px;font-size:11px;color:var(--mute);letter-spacing:.06em;line-height:1.5}
-.pin-hint b{color:var(--gold2);letter-spacing:.08em}
-.pin-attempt{position:relative;z-index:1;margin-top:8px;font-size:11px;color:var(--mute)}
+
 .pin-card.shake{animation:shake .45s}
 .pin-success{position:absolute;inset:0;display:grid;place-items:center;padding:24px;background:linear-gradient(180deg,rgba(8,18,48,.97),rgba(6,14,36,.98));border-radius:28px;z-index:2;opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
 .pin-success.show{opacity:1;visibility:visible}
@@ -793,9 +791,6 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
       <button class="pin-key" type="button" data-k="0">0</button>
       <button class="pin-key ok" type="button" data-k="ok" aria-label="Masuk">MASUK</button>
     </div>
-
-    <div class="pin-hint">PIN demo: <b>6565</b> &bull; Aman & Terenkripsi</div>
-    <div class="pin-attempt" id="pinAttempt"></div>
 
     <div class="pin-success" id="pinSuccess" aria-live="polite">
       <svg class="chk" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><path d="M24 41l11 11 21-23"/></svg>
@@ -2216,7 +2211,7 @@ function showPage(name, init){
         try { navigator.vibrate && navigator.vibrate(20); } catch(e){}
       } else {
         setMsg('Terkunci! Coba lagi dalam ' + remain + ' detik', 'err');
-        attemptEl.textContent = 'Terkunci ' + remain + 's';
+        if (attemptEl) attemptEl.textContent = 'Terkunci ' + remain + 's';
       }
     }, 1000);
     try { navigator.vibrate && navigator.vibrate([40,40,40]); } catch(e){}
