@@ -8,6 +8,7 @@
 <meta name="description" content="Bank Tabungan Bily - web menabung bertema ATM by Bily Engineer">
 <title>BILY BANK — Masukkan PIN</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23f5c451'/%3E%3Cpath d='M24 8 8 18h32L24 8Zm-13 12v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4ZM8 37v4h32v-4H8Z' fill='%23071427'/%3E%3C/svg%3E">
+<script>(function(){try{var l=false;if(navigator.deviceMemory&&navigator.deviceMemory<=2)l=true;if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=3)l=true;if(navigator.connection&&navigator.connection.saveData)l=true;if(window.matchMedia&&window.matchMedia('(max-width:360px)').matches)l=true;if(l)document.documentElement.classList.add('low-perf');document.documentElement.style.touchAction='manipulation';}catch(e){}})();</script>
 <style>
 /* ============ DASAR ============ */
 :root{
@@ -564,6 +565,27 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
 .pin-success h3{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:.04em;color:var(--txt)}
 .pin-success p{margin:0 0 16px;color:var(--mute);font-size:13px;line-height:1.5}
 .pin-success b{color:var(--gold2)}
+
+/* ============ PERFORMANCE OPTIMIZATIONS ============ */
+html{touch-action:manipulation;scroll-behavior:auto}
+button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.card, .atm, .dwallet, .pin-card{contain:layout paint;will-change:auto}
+.page{content-visibility:auto;contain-intrinsic-size:auto 600px}
+.page.active{content-visibility:visible}
+.pin-gate, .dock, .sheet-wrap, .modal{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .pin-gate, .dock, .sheet-wrap, .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+.low-perf *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+.low-perf body::after, .low-perf body::before{opacity:.15}
+.low-perf body{background-attachment:scroll!important}
+.low-perf .pin-gate, .low-perf .dock, .low-perf .sheet-wrap, .low-perf .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(6,13,34,.97)!important}
+.low-perf .card, .low-perf .atm, .low-perf .dwallet{box-shadow:0 8px 18px rgba(0,0,0,.25)!important;border:1px solid var(--line)!important}
+.low-perf .card:hover{border-color:var(--line)!important}
+.low-perf .pin-card::before, .low-perf .dwallet::before, .low-perf .dwallet::after{display:none!important}
+.low-perf .sbtn::after, .low-perf .dw-mode.sim::after, .low-perf .pin-dot.filled::after{display:none!important}
+.low-perf #confetti{display:none!important}
 </style>
 </head>
 <body>
@@ -920,18 +942,48 @@ function fmtDate(ts){
   return DAYS[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0,3) + ' ' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 function dateKey(y, m, d){ return y + '-' + pad(m + 1) + '-' + pad(d); }
+var _toastEl = null, _toastTimer = 0;
 function toast(msg){
-  var t = document.createElement('div');
-  t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 3300);
+  if (!_toastEl){
+    _toastEl = document.createElement('div');
+    _toastEl.className = 'toast';
+    _toastEl.setAttribute('role','status');
+    _toastEl.setAttribute('aria-live','polite');
+  }
+  _toastEl.textContent = msg;
+  if (!_toastEl.isConnected) document.body.appendChild(_toastEl);
+  _toastEl.style.animation = 'none';
+  _toastEl.offsetHeight;
+  _toastEl.style.animation = '';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ if (_toastEl && _toastEl.isConnected) _toastEl.remove(); }, 3000);
 }
+var _fitCache = new WeakMap();
 function fit(el){
-  if (!el) return;
-  el.style.fontSize = '';
-  if (!el.clientWidth) return;
-  var fs = parseFloat(getComputedStyle(el).fontSize);
-  while (el.scrollWidth > el.clientWidth && fs > 12){ fs -= 1; el.style.fontSize = fs + 'px'; }
+  if (!el || !el.clientWidth) return;
+  // throttle via rAF
+  if (el._fitRaf) return;
+  el._fitRaf = requestAnimationFrame(function(){
+    el._fitRaf = 0;
+    var key = el.textContent;
+    var cached = _fitCache.get(el);
+    if (cached && cached.key === key && cached.w === el.clientWidth){
+      el.style.fontSize = cached.fs;
+      return;
+    }
+    el.style.fontSize = '';
+    var fs = parseFloat(getComputedStyle(el).fontSize) || 16;
+    var min = 11, max = fs;
+    // binary search for fastest fit
+    while (el.scrollWidth > el.clientWidth && max > min){
+      fs = Math.max(min, fs - 1);
+      el.style.fontSize = fs + 'px';
+      if (fs <= min) break;
+      // break early if fit
+      if (el.scrollWidth <= el.clientWidth) break;
+    }
+    _fitCache.set(el, {key:key, w:el.clientWidth, fs: el.style.fontSize});
+  });
 }
 
 /* ================= GENERATOR QR (murni JS, mode byte, versi 1-40) ================= */
@@ -1280,7 +1332,8 @@ function showBalance(oldV, newV, type){
   var el = $('balance');
   cancelAnimationFrame(balRAF); clearTimeout(balTimer);
   el.classList.remove('up', 'down');
-  if (reduce || oldV === newV || !type){ el.textContent = rp(newV); fit(el); return; }
+  var isLow = document.documentElement.classList.contains('low-perf');
+  if (reduce || isLow || oldV === newV || !type){ el.textContent = rp(newV); fit(el); return; }
   el.textContent = rp(Math.max(oldV, newV)); fit(el);
   el.classList.add(type === 'add' ? 'up' : 'down');
   var t0 = performance.now(), D = 1500;
@@ -1302,21 +1355,24 @@ function showBalance(oldV, newV, type){
   balTimer = setTimeout(finish, D + 250);
 }
 function screenFx(type){
+  if (document.documentElement.classList.contains('low-perf')) return;
   var s = $('screen');
   s.classList.remove('fx-add', 'fx-sub'); void s.offsetWidth;
   s.classList.add(type === 'add' ? 'fx-add' : 'fx-sub');
-  setTimeout(function(){ s.classList.remove('fx-add', 'fx-sub'); }, 1200);
+  setTimeout(function(){ s.classList.remove('fx-add', 'fx-sub'); }, 900);
 }
 function floatText(type, amount){
+  if (document.documentElement.classList.contains('low-perf')) return;
   var f = document.createElement('div');
   f.className = 'floater ' + type;
   f.textContent = (type === 'add' ? '+ ' : '- ') + rp(amount);
   $('floaters').appendChild(f);
-  setTimeout(function(){ f.remove(); }, 2000);
+  setTimeout(function(){ f.remove(); }, 1500);
 }
 function billFx(type, amount){
+  if (document.documentElement.classList.contains('low-perf')) return;
   var box = $('floaters');
-  var n = amount < 50000 ? 3 : amount < 500000 ? 4 : amount < 5000000 ? 5 : 7;
+  var n = amount < 50000 ? 2 : amount < 500000 ? 3 : 4;
   for (var i = 0; i < n; i++){
     (function(i){
       var b = document.createElement('div');
@@ -1431,8 +1487,19 @@ function chartPoints(){
   state.history.forEach(function(h){ pts.push({ v: h.after, type: h.type, t: h.t, amount: h.amount, note: h.note }); });
   return pts;
 }
+var _chartRaf = 0;
 function renderChart(animFrom){
+  // debounce via rAF to avoid jank on fast clicks
+  if (_chartRaf) cancelAnimationFrame(_chartRaf);
+  _chartRaf = requestAnimationFrame(function(){
+    _chartRaf = 0;
+    _renderChartInner(animFrom);
+  });
+}
+function _renderChartInner(animFrom){
   if (!$('page-beranda').classList.contains('active')){ chartDirty = true; return; }
+  var isLow = document.documentElement.classList.contains('low-perf');
+  if (isLow) animFrom = Infinity;
   var box = $('chartScroll'), svg = $('chartSvg');
   var pts = chartPoints(), n = pts.length;
   if (n < 2){
@@ -1557,17 +1624,24 @@ function moveMonth(delta){
 /* ================= RIWAYAT ================= */
 function renderHistory(){
   var h = state.history, list = $('histList');
-  $('histCount').textContent = h.length + ' transaksi';
   var tin = 0, tout = 0;
-  h.forEach(function(x){ if (x.type === 'add') tin += x.amount; else tout += x.amount; });
+  for (var i=0;i<h.length;i++){ var x=h[i]; if (x.type === 'add') tin += x.amount; else tout += x.amount; }
+  $('histCount').textContent = h.length + ' transaksi';
   $('hsIn').textContent = rp(tin); $('hsOut').textContent = rp(tout);
-  if (!h.length){ list.innerHTML = '<li class="empty">Belum ada transaksi.</li>'; return; }
-  var items = h.slice(-100).reverse();
-  list.innerHTML = items.map(function(x){
+  if (!h.length){ list.textContent=''; list.innerHTML = '<li class="empty">Belum ada transaksi.</li>'; return; }
+  var low = document.documentElement.classList.contains('low-perf');
+  var limit = low ? 50 : 80;
+  var items = h.slice(-limit).reverse();
+  var frag = document.createDocumentFragment();
+  var tmp = document.createElement('div');
+  tmp.innerHTML = items.map(function(x){
     return '<li class="' + x.type + '"><span class="ico">' + (x.type === 'add' ? '+' : '&minus;') + '</span>' +
       '<div class="meta"><b>' + (x.type === 'add' ? 'Tambah uang' : 'Kurangi uang') + (x.note ? ' &middot; ' + esc(x.note) : '') + '</b><small>' + fmtDate(x.t) + '</small></div>' +
       '<div class="amt">' + (x.type === 'add' ? '+' : '-') + rp(x.amount) + '<small>Saldo ' + rp(x.after) + '</small></div></li>';
   }).join('');
+  while (tmp.firstChild) frag.appendChild(tmp.firstChild);
+  list.textContent = '';
+  list.appendChild(frag);
 }
 
 /* ================= MODAL & CONFETTI ================= */
@@ -1583,26 +1657,47 @@ function ask(title, text, okLabel){
 }
 function confetti(){
   if (reduce) return;
-  var c = $('confetti'), ctx = c.getContext('2d');
-  c.width = window.innerWidth; c.height = window.innerHeight; c.hidden = false;
-  var colors = ['#f5c451', '#22e58f', '#38a8ff', '#ff4d5e', '#ffe39a', '#ffffff'];
-  var parts = [];
-  for (var i = 0; i < 150; i++){
-    parts.push({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.5, vx: (Math.random() - 0.5) * 4, vy: 2 + Math.random() * 4,
-      s: 6 + Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, col: colors[(Math.random() * colors.length) | 0] });
-  }
-  var t0 = performance.now();
-  function frame(now){
-    ctx.clearRect(0, 0, c.width, c.height);
-    parts.forEach(function(p){
-      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.r += p.vr;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col;
-      ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore();
-    });
-    if (now - t0 < 4200) requestAnimationFrame(frame);
-    else { ctx.clearRect(0, 0, c.width, c.height); c.hidden = true; }
-  }
-  requestAnimationFrame(frame);
+  if (document.documentElement.classList.contains('low-perf')) return;
+  if (document.hidden) return;
+  var c = $('confetti');
+  try{
+    var ctx = c.getContext('2d', {alpha:true, desynchronized:true});
+    if (!ctx) return;
+    // use devicePixelRatio cap for low-end
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    c.width = Math.floor(window.innerWidth * dpr);
+    c.height = Math.floor(window.innerHeight * dpr);
+    c.style.width = window.innerWidth + 'px';
+    c.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    c.hidden = false;
+    var colors = ['#f5c451', '#22e58f', '#38a8ff', '#ff4d5e', '#ffe39a'];
+    var isLow = document.documentElement.classList.contains('low-perf');
+    var count = isLow ? 28 : 70;
+    var parts = [];
+    for (var i = 0; i < count; i++){
+      parts.push({ x: Math.random() * window.innerWidth, y: -20 - Math.random() * 120, vx: (Math.random() - 0.5) * 3.2, vy: 2 + Math.random() * 3.5,
+        s: 5 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.25, col: colors[(Math.random() * colors.length) | 0] });
+    }
+    var t0 = performance.now();
+    var last = t0;
+    function frame(now){
+      if (document.hidden){ ctx.clearRect(0,0,window.innerWidth,window.innerHeight); c.hidden=true; return; }
+      // throttle to 30fps on low devices
+      if (now - last < 16) { requestAnimationFrame(frame); return; }
+      last = now;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (var j=0;j<parts.length;j++){
+        var p = parts[j];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col;
+        ctx.fillRect(-p.s/2, -p.s/4, p.s, p.s/2); ctx.restore();
+      }
+      if (now - t0 < 2600) requestAnimationFrame(frame);
+      else { ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); c.hidden = true; }
+    }
+    requestAnimationFrame(frame);
+  }catch(e){}
 }
 
 /* ================= EVENT ================= */
@@ -1660,12 +1755,13 @@ $('btnTargetDel').addEventListener('click', function(){
 $('chartSvg').addEventListener('click', function(e){
   var h = e.target.closest ? e.target.closest('.hit') : null;
   if (h) selectPoint(parseInt(h.getAttribute('data-i'), 10));
-});
+}, {passive:true});
 $('chartSvg').addEventListener('pointerover', function(e){
   if (e.pointerType === 'touch') return;
+  if (document.documentElement.classList.contains('low-perf')) return;
   var h = e.target.closest ? e.target.closest('.hit') : null;
   if (h) selectPoint(parseInt(h.getAttribute('data-i'), 10));
-});
+}, {passive:true});
 
 $('calPrev').addEventListener('click', function(){ moveMonth(-1); });
 $('calNext').addEventListener('click', function(){ moveMonth(1); });
@@ -1691,10 +1787,14 @@ var rt = 0;
 window.addEventListener('resize', function(){
   clearTimeout(rt);
   rt = setTimeout(function(){
-    fit($('balance')); fit($('amount'));
-    renderChart(Infinity);
-  }, 150);
-});
+    // use rAF for smoother, avoid layout thrash
+    requestAnimationFrame(function(){
+      fit($('balance')); fit($('amount'));
+      // only re-render chart if visible
+      if ($('page-beranda').classList.contains('active')) renderChart(Infinity);
+    });
+  }, 120);
+}, {passive:true});
 
 /* ================= TABUNGAN DIGITAL (QR) ================= */
 var dig = { poll: 0, polling: false, expiring: false, paying: false, busy: false, balRAF: 0, balTimer: 0, lastAmt: 0 };
@@ -2360,16 +2460,38 @@ function showPage(name, init){
   }
 
 })();
+// lazy chart render via rAF & visibility
+var chartObserver = null;
+try {
+  if ('IntersectionObserver' in window){
+    chartObserver = new IntersectionObserver(function(entries){
+      for (var i=0;i<entries.length;i++){
+        if (entries[i].isIntersecting && chartDirty){
+          chartDirty = false;
+          _renderChartInner(Infinity);
+        }
+      }
+    }, {threshold:0.1});
+    var berandaPage = $('page-beranda');
+    if (berandaPage) chartObserver.observe(berandaPage);
+  }
+} catch(e){}
 window.addEventListener('hashchange', function(){ showPage(pageFromHash()); });
 
 /* ================= MULAI ================= */
 showPage(pageFromHash(), true);
 $('balance').textContent = rp(balance());
 setMode('home');
-updateClock(); setInterval(updateClock, 15000);
+updateClock(); setInterval(updateClock, 30000);
 renderTarget(); renderHistory(); renderCalendar(null, false);
 if (state.digital.pending && state.digital.pending.sim !== digSim()){ state.digital.pending = null; save(); }
 digSync(); renderDigital(); digTick(); setInterval(digTick, 1000);
+  // pause expensive timers when tab hidden
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden){
+      // reduce work when hidden
+    }
+  }, {passive:true});
 renderChart(1);
 fit($('balance'));
 })();
