@@ -188,9 +188,10 @@ input{font-family:inherit}
 .cal-dow span{text-align:center;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
 .cal-dow span:first-child{color:#ff8a95}
 .cal-grid.fade{animation:fadeIn .35s ease}
-.day{position:relative;aspect-ratio:1;padding:0;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--txt);font:700 clamp(13px,3.5vw,16px) var(--font);transition:background .15s,transform .1s}
+.day{position:relative;aspect-ratio:1;padding:0;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--txt);font:700 clamp(13px,3.5vw,16px) var(--font);transition:background .15s,transform .12s}
 .day:hover{background:rgba(255,255,255,.1)}
-.day:active{transform:scale(.94)}
+.day:active:not(.empty){transform:scale(.93)}
+.day.today:active:not(.empty){transform:scale(.93)}
 .day .dn{position:relative;z-index:1}
 .day.sun .dn{color:#ff9aa4}
 .day.today{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold),0 0 12px rgba(245,196,81,.25)}
@@ -213,15 +214,10 @@ input{font-family:inherit}
 .cal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .cal-actions .btn{flex:1;min-width:130px;min-height:46px;border-radius:13px;font-weight:800;font-size:14px;letter-spacing:.04em;transition:transform .12s,box-shadow .2s,background .2s}
 .cal-actions .btn:active{transform:scale(.97)}
-.cal-lock-btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1e1500;border:1px solid rgba(197,141,27,.85);box-shadow:0 4px 14px rgba(197,141,27,.25)}
-.cal-set-btn{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.05));color:var(--txt);border:1px solid rgba(241,230,211,.18);backdrop-filter:blur(6px)}
-.cal-set-btn:hover{background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.08));border-color:rgba(245,196,81,.35)}
+.cal-lock-btn,.cal-set-btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1e1500;border:1px solid rgba(197,141,27,.85);box-shadow:0 4px 14px rgba(197,141,27,.25)}
+.cal-lock-btn:hover,.cal-set-btn:hover{box-shadow:0 6px 18px rgba(197,141,27,.32);filter:brightness(1.05)}
 .cal-grid{animation:fadeIn .35s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.day{transition:transform .15s,background .2s,box-shadow .2s}
-.day:active{transform:scale(.92)}
-.day.today{animation:calToday .6s ease}
-@keyframes calToday{0%{transform:scale(.9)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
 .pin-set-modal{position:fixed;inset:0;z-index:85;display:grid;place-items:center;padding:20px}
 .pin-set-modal[hidden]{display:none!important}
 .pin-set-backdrop{position:absolute;inset:0;background:rgba(2,6,16,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -553,13 +549,12 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
 .pin-card{width:100%;max-width:380px;padding:28px 22px 22px;border-radius:22px;
   background:linear-gradient(180deg,rgba(14,28,68,.97),rgba(7,16,42,.97));
   border:1px solid rgba(245,196,81,.18);box-shadow:0 18px 44px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);
-  text-align:center;animation:pinIn .5s cubic-bezier(.2,.9,.3,1), pinFloat 5s ease-in-out infinite 1s;position:relative;overflow:hidden}
-@keyframes pinIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-@keyframes pinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  text-align:center;animation:pinIn .4s cubic-bezier(.2,.9,.3,1);position:relative;overflow:hidden;will-change:transform}
+@keyframes pinIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 .pin-logo{width:72px;height:72px;margin:0 auto 14px;display:block;filter:drop-shadow(0 8px 18px rgba(245,196,81,.42));position:relative;z-index:1}
 .pin-title{margin:0;position:relative;z-index:1;font-size:clamp(24px,6.5vw,32px);letter-spacing:.14em;font-weight:900;
   background:linear-gradient(100deg,#8a6516,#ffe39a 22%,#f5c451 42%,#c58d1b 62%,#ffe9b0 78%,#8a6516);background-size:220% auto;
-  -webkit-background-clip:text;background-clip:text;color:transparent;animation:bankProShine 3.2s linear infinite}
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:bankProShine 6s ease-in-out infinite}
 .pin-sub{margin:8px 0 22px;position:relative;z-index:1;color:var(--mute);font-size:13px;letter-spacing:.08em;line-height:1.5}
 .pin-sub b{color:var(--gold2);font-weight:800}
 .pin-dots{position:relative;z-index:1;display:flex;gap:16px;justify-content:center;margin:0 0 10px}
@@ -788,7 +783,7 @@ button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-a
 
       <div class="cal-actions">
         <button class="btn cal-lock-btn" id="btnLockNow" type="button">Kunci Aplikasi</button>
-        <button class="btn ghost cal-set-btn" id="btnPinSetOpen" type="button">Pengaturan</button>
+        <button class="btn cal-set-btn" id="btnPinSetOpen" type="button">Pengaturan</button>
       </div>
 
       <div id="pinSetModal" class="pin-set-modal" hidden>
