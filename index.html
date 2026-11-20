@@ -8,7 +8,7 @@
 <meta name="description" content="Bank Tabungan Bily - web menabung bertema ATM by Bily Engineer">
 <title>BILY BANK — Masukkan PIN</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23f5c451'/%3E%3Cpath d='M24 8 8 18h32L24 8Zm-13 12v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4ZM8 37v4h32v-4H8Z' fill='%23071427'/%3E%3C/svg%3E">
-<script>(function(){try{var l=false;if(navigator.deviceMemory&&navigator.deviceMemory<=2)l=true;if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=3)l=true;if(navigator.connection&&navigator.connection.saveData)l=true;if(window.matchMedia&&window.matchMedia('(max-width:360px)').matches)l=true;if(l)document.documentElement.classList.add('low-perf');document.documentElement.style.touchAction='manipulation';}catch(e){}})();</script>
+<script>(function(){try{var l=false;var ua=navigator.userAgent||'';var isAndroid=/Android/i.test(ua);var mem=navigator.deviceMemory||0;var cores=navigator.hardwareConcurrency||0;var conn=navigator.connection||{};if(mem&&mem<=4)l=true;if(cores&&cores<=4)l=true;if(conn.saveData)l=true;if(conn.effectiveType&&/2g|slow-2g/.test(conn.effectiveType))l=true;if(isAndroid&&mem&&mem<=6)l=true;if(window.matchMedia&&window.matchMedia('(max-width:480px)').matches)l=true;if(window.devicePixelRatio&&window.devicePixelRatio<1.5&&isAndroid)l=true;try{if(localStorage.getItem('bily_lite')==='1')l=true;if(localStorage.getItem('bily_lite')==='0')l=false;}catch(e){}if(l)document.documentElement.classList.add('low-perf');document.documentElement.style.touchAction='manipulation';}catch(e){}})();</script>
 <style>
 /* ============ DASAR ============ */
 :root{
@@ -208,6 +208,13 @@ input{font-family:inherit}
 .lgo{display:inline-block;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--green);vertical-align:-3px;margin-right:5px}
 .lgx{display:inline-block;width:14px;height:14px;vertical-align:-3px;margin-right:5px}
 .cal-sum b.o{color:#7dffc8}.cal-sum b.x{color:#ff9aa4}
+
+/* ============ KEAMANAN PIN DI KALENDER ============ */
+.sec-card .sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
+.sec-info b{display:block;font-size:13px}
+.sec-info small{display:block;color:var(--mute);font-size:11px;margin-top:2px;line-height:1.4}
+.sec-card .tform .inp{font-family:var(--mono);letter-spacing:.12em}
+.sec-card .hint{min-height:18px}
 
 /* ============ RIWAYAT ============ */
 .hist{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;display:grid;gap:8px;scrollbar-width:thin}
@@ -566,9 +573,9 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
 .pin-success p{margin:0 0 16px;color:var(--mute);font-size:13px;line-height:1.5}
 .pin-success b{color:var(--gold2)}
 
-/* ============ PERFORMANCE OPTIMIZATIONS ============ */
+/* ============ PERFORMANCE OPTIMIZATIONS - ULTRA LITE FOR LOW-END ANDROID ============ */
 html{touch-action:manipulation;scroll-behavior:auto}
-button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-action:manipulation;-webkit-tap-highlight-color:transparent; -webkit-tap-highlight-color:transparent}
 .card, .atm, .dwallet, .pin-card{contain:layout paint;will-change:auto}
 .page{content-visibility:auto;contain-intrinsic-size:auto 600px}
 .page.active{content-visibility:visible}
@@ -577,15 +584,26 @@ button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-a
   *,*::before,*::after{animation:none!important;transition:none!important}
   .pin-gate, .dock, .sheet-wrap, .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 }
-.low-perf *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-.low-perf body::after, .low-perf body::before{opacity:.15}
-.low-perf body{background-attachment:scroll!important}
-.low-perf .pin-gate, .low-perf .dock, .low-perf .sheet-wrap, .low-perf .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(6,13,34,.97)!important}
-.low-perf .card, .low-perf .atm, .low-perf .dwallet{box-shadow:0 8px 18px rgba(0,0,0,.25)!important;border:1px solid var(--line)!important}
+/* Low-perf agresif: matikan semua efek berat */
+.low-perf *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.low-perf body::after, .low-perf body::before{opacity:.08!important;display:block!important}
+.low-perf body{background:#f5eee0!important;background-image:none!important;background-attachment:scroll!important}
+.low-perf body.locked .layout, .low-perf body.locked .top, .low-perf body.locked .dock, .low-perf body.locked footer{filter:none!important;opacity:.3}
+.low-perf .pin-gate, .low-perf .dock, .low-perf .sheet-wrap, .low-perf .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(6,13,34,.98)!important}
+.low-perf .card, .low-perf .atm, .low-perf .dwallet, .low-perf .pin-card{box-shadow:0 4px 12px rgba(0,0,0,.18)!important;border:1px solid var(--line)!important;background:linear-gradient(180deg,#0f2049,#081230)!important}
 .low-perf .card:hover{border-color:var(--line)!important}
-.low-perf .pin-card::before, .low-perf .dwallet::before, .low-perf .dwallet::after{display:none!important}
-.low-perf .sbtn::after, .low-perf .dw-mode.sim::after, .low-perf .pin-dot.filled::after{display:none!important}
-.low-perf #confetti{display:none!important}
+.low-perf .pin-card::before, .low-perf .dwallet::before, .low-perf .dwallet::after, .low-perf .top h1::before{display:none!important}
+.low-perf .sbtn::after, .low-perf .dw-mode.sim::after, .low-perf .pin-dot.filled::after, .low-perf .sbtn b{animation:none!important}
+.low-perf #confetti, .low-perf .floaters, .low-perf .bill, .low-perf .floater{display:none!important}
+.low-perf .mk{filter:none!important}
+.low-perf .mk circle, .low-perf .mk path{animation:none!important;stroke-dasharray:none!important;stroke-dashoffset:0!important}
+.low-perf .day{transition:none!important}
+.low-perf .day.today{box-shadow:inset 0 0 0 1px var(--gold)!important}
+.low-perf .screen{box-shadow:inset 0 0 0 1px rgba(125,255,200,.18)!important}
+.low-perf .chart-scroll{background:rgba(0,0,0,.06)!important}
+.low-perf .pin-logo{filter:none!important}
+.low-perf .pin-title{animation:none!important;background:var(--gold2)!important;-webkit-background-clip:unset!important;background-clip:unset!important;color:var(--gold2)!important}
+.low-perf .sec-card{box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -758,6 +776,31 @@ button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-a
       <div class="cal-dow"><span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span></div>
       <div class="cal-grid" id="calGrid"></div>
     </section>
+
+      <section class="card sec-card">
+        <h2>Keamanan <span class="muted" style="font-weight:600;letter-spacing:0;text-transform:none">PIN & Kunci Layar</span></h2>
+        <div class="sec-row">
+          <div class="sec-info">
+            <b>Kunci Aplikasi</b>
+            <small>Klik untuk langsung ke halaman lock PIN</small>
+          </div>
+          <button class="btn" id="btnLockNow" type="button" style="min-width:116px">🔒 Kunci</button>
+        </div>
+        <div style="height:12px"></div>
+        <h3 style="margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">Ubah Password PIN</h3>
+        <div class="tform" id="pinSetForm">
+          <div class="field"><label for="pinOld">PIN Lama</label><input class="inp" id="pinOld" type="password" inputmode="numeric" maxlength="6" placeholder="4-6 digit" autocomplete="off"></div>
+          <div class="field"><label for="pinNew">PIN Baru</label><input class="inp" id="pinNew" type="password" inputmode="numeric" maxlength="6" placeholder="4-6 digit" autocomplete="off"></div>
+          <div class="field"><label for="pinNew2">Konfirmasi PIN Baru</label><input class="inp" id="pinNew2" type="password" inputmode="numeric" maxlength="6" placeholder="Ulangi PIN baru" autocomplete="off"></div>
+          <div class="hint" id="pinSetMsg"></div>
+          <div class="row"><button class="btn" id="btnPinSave" type="button">Simpan PIN</button><button class="btn ghost" id="btnPinResetDef" type="button">Reset ke 6565</button></div>
+          <small class="muted" style="display:block;margin-top:8px;line-height:1.5">TIP: PIN disimpan lokal di HP saja. Default: 6565.</small>
+        </div>
+        <div class="sec-row" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)">
+          <div class="sec-info"><b>Mode Ringan</b><small>Matikan efek berat agar tidak lag di HP low-end</small></div>
+          <button class="mini" id="btnLiteToggle" type="button" aria-pressed="false">Aktifkan</button>
+        </div>
+      </section>
     </div>
   </section>
 
@@ -913,6 +956,9 @@ var MAX = 999999999999;
 var MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 var DAYS = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var isLowPerf = document.documentElement.classList.contains('low-perf');
+try{ if (navigator.deviceMemory && navigator.deviceMemory <=3) isLowPerf = true; if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <=4 && /Android/i.test(navigator.userAgent||'')) isLowPerf = true; }catch(e){}
+if (isLowPerf) document.documentElement.classList.add('low-perf');
 
 /* ================= PENGATURAN PEMBAYARAN QR =================
    Kosongkan DIGITAL_API = MODE SIMULASI (QR contoh + tombol "Simulasikan Bayar").
@@ -1260,12 +1306,33 @@ function load(){
   } catch (e){ return fresh(); }
 }
 var saveWarned = false;
-function save(){
+var _saveTimer = 0;
+var _savePending = false;
+function _doSave(){
+  _saveTimer = 0; _savePending = false;
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
   catch (e){
     if (!saveWarned){ saveWarned = true; toast('Penyimpanan browser tidak tersedia, data tidak tersimpan.'); }
   }
 }
+function save(){
+  if (isLowPerf){
+    // debounce heavy write on low-end
+    _savePending = true;
+    if (_saveTimer) return;
+    _saveTimer = setTimeout(_doSave, isLowPerf ? 800 : 300);
+    if (window.requestIdleCallback){
+      // try idle
+      requestIdleCallback(function(){ if(_savePending) _doSave(); }, {timeout:1200});
+    }
+  } else {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e){
+      if (!saveWarned){ saveWarned = true; toast('Penyimpanan browser tidak tersedia, data tidak tersimpan.'); }
+    }
+  }
+}
+function flushSave(){ if (_savePending) _doSave(); }
 var state = load();
 function balance(){ return state.history.length ? state.history[state.history.length - 1].after : 0; }
 
@@ -2251,9 +2318,12 @@ function showPage(name, init){
   })();
 
 })();
-/* ================= PIN GATE - BILY BANK (6565) ================= */
+/* ================= PIN GATE - BILY BANK ================= */
+var PIN_KEY = 'bily_bank_pin';
+function getPin(){ try{ var v=localStorage.getItem(PIN_KEY); if(v && /^[0-9]{4,6}$/.test(v)) return v; }catch(e){} return "6565"; }
+function setPin(v){ try{ localStorage.setItem(PIN_KEY, v); }catch(e){} }
 (function(){
-  var PIN = "6565";
+  var PIN = getPin();
   var gate = $('pinGate');
   if (!gate) return;
   var card = $('pinCard');
@@ -2365,7 +2435,7 @@ function showPage(name, init){
       card.classList.add('shake'); setTimeout(function(){ card.classList.remove('shake'); }, 400);
       return;
     }
-    if (pinInput === PIN){
+    if (pinInput === getPin()){
       handleSuccess();
     } else {
       handleFail();
@@ -2459,6 +2529,74 @@ function showPage(name, init){
     });
   }
 
+})();
+/* ================= KALENDER - PENGATURAN PIN & LOCK ================= */
+(function(){
+  var lockBtn = document.getElementById('btnLockNow');
+  if (lockBtn) lockBtn.addEventListener('click', function(){ if (window._bilyLock) window._bilyLock(); else { document.body.classList.add('locked'); var g=document.getElementById('pinGate'); if(g) g.classList.remove('hidden'); } });
+
+  var pinOld = document.getElementById('pinOld');
+  var pinNew = document.getElementById('pinNew');
+  var pinNew2 = document.getElementById('pinNew2');
+  var pinMsg = document.getElementById('pinSetMsg');
+  var btnSave = document.getElementById('btnPinSave');
+  var btnReset = document.getElementById('btnPinResetDef');
+  var liteBtn = document.getElementById('btnLiteToggle');
+
+  function liteUpdate(){
+    var isLow = document.documentElement.classList.contains('low-perf');
+    if (liteBtn){ liteBtn.textContent = isLow ? 'Nonaktifkan' : 'Aktifkan'; liteBtn.setAttribute('aria-pressed', isLow ? 'true' : 'false'); liteBtn.classList.toggle('on', isLow); }
+    try{ localStorage.setItem('bily_lite', isLow ? '1' : '0'); }catch(e){}
+  }
+  // restore lite from storage
+  try{
+    if (localStorage.getItem('bily_lite')==='1') document.documentElement.classList.add('low-perf');
+    if (localStorage.getItem('bily_lite')==='0') document.documentElement.classList.remove('low-perf');
+  }catch(e){}
+  liteUpdate();
+  if (liteBtn) liteBtn.addEventListener('click', function(){
+    document.documentElement.classList.toggle('low-perf');
+    liteUpdate();
+    var on = document.documentElement.classList.contains('low-perf');
+    toast(on ? 'Mode Ringan aktif — animasi dimatikan' : 'Mode Ringan nonaktif — efek penuh');
+    // re-render chart with new mode
+    try{ renderChart(Infinity); }catch(e){}
+  });
+
+  function setPinMsg(txt, isErr){
+    if (!pinMsg) return;
+    pinMsg.textContent = txt || '';
+    pinMsg.style.color = isErr ? '#ff9aa4' : '#7dffc8';
+  }
+  if (btnSave) btnSave.addEventListener('click', function(){
+    var oldV = (pinOld.value||'').replace(/\D/g,'');
+    var newV = (pinNew.value||'').replace(/\D/g,'');
+    var newV2 = (pinNew2.value||'').replace(/\D/g,'');
+    if (!oldV || !newV || !newV2){ setPinMsg('Isi semua field PIN', true); return; }
+    if (oldV !== getPin()){ setPinMsg('PIN lama salah', true); toast('PIN lama salah'); return; }
+    if (newV.length < 4 || newV.length > 6){ setPinMsg('PIN baru harus 4-6 digit', true); return; }
+    if (newV !== newV2){ setPinMsg('Konfirmasi PIN tidak cocok', true); return; }
+    if (newV === oldV){ setPinMsg('PIN baru tidak boleh sama dengan lama', true); return; }
+    setPin(newV);
+    setPinMsg('PIN berhasil diubah!', false);
+    toast('PIN berhasil diubah — silakan kunci & coba lagi ✨');
+    pinOld.value=''; pinNew.value=''; pinNew2.value='';
+    try{ confetti(); }catch(e){}
+  });
+  if (btnReset) btnReset.addEventListener('click', function(){
+    setPin('6565');
+    setPinMsg('PIN direset ke 6565', false);
+    toast('PIN direset ke 6565');
+    pinOld.value=''; pinNew.value=''; pinNew2.value='';
+  });
+  // helper to show pin length hint
+  [pinOld, pinNew, pinNew2].forEach(function(inp){
+    if (!inp) return;
+    inp.addEventListener('input', function(){
+      this.value = this.value.replace(/\D/g,'').slice(0,6);
+      if (pinMsg) pinMsg.textContent='';
+    });
+  });
 })();
 // lazy chart render via rAF & visibility
 var chartObserver = null;
