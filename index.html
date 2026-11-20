@@ -8,7 +8,7 @@
 <meta name="description" content="Bank Tabungan Bily - web menabung bertema ATM by Bily Engineer">
 <title>BILY BANK — Masukkan PIN</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23f5c451'/%3E%3Cpath d='M24 8 8 18h32L24 8Zm-13 12v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4Zm9 0v14h4V20h-4ZM8 37v4h32v-4H8Z' fill='%23071427'/%3E%3C/svg%3E">
-<script>(function(){try{document.documentElement.classList.add('low-perf');document.documentElement.style.touchAction='manipulation';}catch(e){}})();</script>
+<script>(function(){try{var ua=navigator.userAgent||"";var isLow=/Android.*Chrome\/[0-8]\d|Android 4|Android 5/i.test(ua);var mem=navigator.deviceMemory||0;if(mem&&mem<=2)isLow=true;if(navigator.connection&&navigator.connection.saveData)isLow=true;if(isLow)document.documentElement.classList.add('low-perf');document.documentElement.style.touchAction='manipulation';}catch(e){}})();</script>
 <style>
 /* ============ DASAR ============ */
 :root{
@@ -210,12 +210,18 @@ input{font-family:inherit}
 .cal-sum b.o{color:#7dffc8}.cal-sum b.x{color:#ff9aa4}
 
 /* ============ KALENDER: Kunci & Pengaturan PIN ============ */
-.cal-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
-.cal-actions .btn{flex:1;min-width:140px;min-height:48px;border-radius:14px;font-weight:800;letter-spacing:.04em;transition:transform .12s,box-shadow .2s}
+.cal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cal-actions .btn{flex:1;min-width:130px;min-height:46px;border-radius:13px;font-weight:800;font-size:14px;letter-spacing:.04em;transition:transform .12s,box-shadow .2s,background .2s}
 .cal-actions .btn:active{transform:scale(.97)}
-.cal-lock-btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1e1500;border:1px solid rgba(197,141,27,.85);box-shadow:0 6px 16px rgba(197,141,27,.28)}
-.cal-set-btn{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--line)}
-.cal-set-btn:hover{background:rgba(255,255,255,.1)}
+.cal-lock-btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1e1500;border:1px solid rgba(197,141,27,.85);box-shadow:0 4px 14px rgba(197,141,27,.25)}
+.cal-set-btn{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.05));color:var(--txt);border:1px solid rgba(241,230,211,.18);backdrop-filter:blur(6px)}
+.cal-set-btn:hover{background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.08));border-color:rgba(245,196,81,.35)}
+.cal-grid{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.day{transition:transform .15s,background .2s,box-shadow .2s}
+.day:active{transform:scale(.92)}
+.day.today{animation:calToday .6s ease}
+@keyframes calToday{0%{transform:scale(.9)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
 .pin-set-modal{position:fixed;inset:0;z-index:85;display:grid;place-items:center;padding:20px}
 .pin-set-modal[hidden]{display:none!important}
 .pin-set-backdrop{position:absolute;inset:0;background:rgba(2,6,16,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -544,12 +550,12 @@ body.locked .layout, body.locked .top, body.locked .dock, body.locked footer{fil
   overflow:auto;
 }
 .pin-gate.hidden{opacity:0;pointer-events:none;visibility:hidden;transform:scale(.97)}
-.pin-card{width:100%;max-width:400px;padding:28px 22px 22px;border-radius:28px;
-  background:linear-gradient(180deg,rgba(20,39,90,.98),rgba(8,18,48,.98));
-  border:1px solid rgba(241,230,211,.16);box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.09),0 0 0 1px rgba(245,196,81,.08);
-  text-align:center;animation:pinIn .6s cubic-bezier(.2,.9,.3,1);position:relative;overflow:hidden}
-.pin-card::before{content:"";position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(245,196,81,.14),transparent 70%);pointer-events:none}
-@keyframes pinIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.pin-card{width:100%;max-width:380px;padding:28px 22px 22px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(14,28,68,.97),rgba(7,16,42,.97));
+  border:1px solid rgba(245,196,81,.18);box-shadow:0 18px 44px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);
+  text-align:center;animation:pinIn .5s cubic-bezier(.2,.9,.3,1), pinFloat 5s ease-in-out infinite 1s;position:relative;overflow:hidden}
+@keyframes pinIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes pinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .pin-logo{width:72px;height:72px;margin:0 auto 14px;display:block;filter:drop-shadow(0 8px 18px rgba(245,196,81,.42));position:relative;z-index:1}
 .pin-title{margin:0;position:relative;z-index:1;font-size:clamp(24px,6.5vw,32px);letter-spacing:.14em;font-weight:900;
   background:linear-gradient(100deg,#8a6516,#ffe39a 22%,#f5c451 42%,#c58d1b 62%,#ffe9b0 78%,#8a6516);background-size:220% auto;
@@ -596,30 +602,16 @@ button, a, .pin-key, .dock-btn, .key, .mini, .btn, .nav, .chip-btn, .act{touch-a
   *,*::before,*::after{animation:none!important;transition:none!important}
   .pin-gate, .dock, .sheet-wrap, .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 }
-/* Low-perf agresif: matikan semua efek berat */
-.low-perf *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-.low-perf body::after, .low-perf body::before{opacity:.08!important;display:block!important}
-.low-perf body{background:#f5eee0!important;background-image:none!important;background-attachment:scroll!important}
-.low-perf body.locked .layout, .low-perf body.locked .top, .low-perf body.locked .dock, .low-perf body.locked footer{filter:none!important;opacity:.3}
-.low-perf .pin-gate, .low-perf .dock, .low-perf .sheet-wrap, .low-perf .modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(6,13,34,.98)!important}
-.low-perf .card, .low-perf .atm, .low-perf .dwallet, .low-perf .pin-card{box-shadow:0 4px 12px rgba(0,0,0,.18)!important;border:1px solid var(--line)!important;background:linear-gradient(180deg,#0f2049,#081230)!important}
-.low-perf .card:hover{border-color:var(--line)!important}
-.low-perf .pin-card::before, .low-perf .dwallet::before, .low-perf .dwallet::after, .low-perf .top h1::before{display:none!important}
-.low-perf .sbtn::after, .low-perf .dw-mode.sim::after, .low-perf .pin-dot.filled::after, .low-perf .sbtn b{animation:none!important}
-.low-perf #confetti, .low-perf .floaters, .low-perf .bill, .low-perf .floater{display:none!important}
+/* Perf-lite: hanya matikan efek berat, biarkan animasi halus */
+.low-perf body::after, .low-perf body::before{opacity:.06!important}
+.low-perf body{background-attachment:scroll!important}
+.low-perf #confetti{opacity:.35!important}
+.low-perf .floaters, .low-perf .bill, .low-perf .floater{display:none!important}
+.low-perf .sbtn::after, .low-perf .dw-mode.sim::after{animation:none!important}
 .low-perf .mk{filter:none!important}
-.low-perf .mk circle, .low-perf .mk path{animation:none!important;stroke-dasharray:none!important;stroke-dashoffset:0!important}
-.low-perf .day{transition:none!important}
-.low-perf .day.today{box-shadow:inset 0 0 0 1px var(--gold)!important}
-.low-perf .screen{box-shadow:inset 0 0 0 1px rgba(125,255,200,.18)!important}
-.low-perf .chart-scroll{background:rgba(0,0,0,.06)!important}
-.low-perf .pin-logo{filter:none!important}
-.low-perf .pin-title{animation:none!important;background:var(--gold2)!important;-webkit-background-clip:unset!important;background-clip:unset!important;color:var(--gold2)!important}
-.low-perf .cal-actions .btn{box-shadow:none!important}
-.low-perf .pin-set-box{box-shadow:0 8px 24px rgba(0,0,0,.3)!important;animation:none!important}
-.low-perf .pin-gate{transition:none!important}
-.low-perf .pin-card{animation:none!important}
-.low-perf .atop{box-shadow:none!important}
+.low-perf .pin-card{animation:pinIn .35s ease!important}
+.low-perf .pin-set-box{animation:pinModalIn .2s ease!important}
+.low-perf .cal-grid.fade{animation:fadeIn .25s ease!important}
 
 </style>
 </head>
@@ -2453,8 +2445,10 @@ function setPin(v){ try{ localStorage.setItem(PIN_KEY, v); }catch(e){} }
       handleFail();
     }
   }
+  var lastKeyAt = 0;
   function onKey(k){
     if (checking || isLocked()) return;
+    if (Date.now() - lastKeyAt < 80) return; lastKeyAt = Date.now();
     if (k === 'del'){
       pinInput = pinInput.slice(0,-1);
       updateDots();
@@ -2545,8 +2539,6 @@ function setPin(v){ try{ localStorage.setItem(PIN_KEY, v); }catch(e){} }
 /* ================= KALENDER - KUNCI & PENGATURAN PIN MODAL ================= */
 (function(){
   var lockBtn = document.getElementById('btnLockNow');
-  if (lockBtn) lockBtn.addEventListener('click', function(){ if (window._bilyLock) window._bilyLock(); });
-
   var modal = document.getElementById('pinSetModal');
   var backdrop = document.getElementById('pinSetBackdrop');
   var openBtn = document.getElementById('btnPinSetOpen');
@@ -2555,20 +2547,32 @@ function setPin(v){ try{ localStorage.setItem(PIN_KEY, v); }catch(e){} }
   var pinMsg = document.getElementById('pinSetMsg');
   var btnSave = document.getElementById('btnPinSave');
   var btnReset = document.getElementById('btnPinResetDef');
+  var _rateLock = 0, _rateSave = 0;
+  function throttle(last){ return Date.now() - last < 600; }
+
+  if (lockBtn) lockBtn.addEventListener('click', function(){
+    if (throttle(_rateLock)) return;
+    _rateLock = Date.now();
+    if (window._bilyLock) window._bilyLock();
+  });
 
   function openModal(){
-    if (!modal) return;
+    if (!modal || !modal.hidden) return;
     modal.hidden = false;
     document.body.classList.add('noscroll');
+    setTimeout(function(){ if(pinNew) pinNew.focus(); }, 80);
   }
   function closeModal(){
-    if (!modal) return;
+    if (!modal || modal.hidden) return;
     modal.hidden = true;
     document.body.classList.remove('noscroll');
     if (pinMsg) pinMsg.textContent = '';
     if (pinNew) pinNew.value = '';
   }
-  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (openBtn) openBtn.addEventListener('click', function(e){
+    e.preventDefault(); e.stopPropagation();
+    openModal();
+  });
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (backdrop) backdrop.addEventListener('click', closeModal);
   document.addEventListener('keydown', function(e){ if (modal && !modal.hidden && e.key === 'Escape') closeModal(); });
@@ -2579,16 +2583,22 @@ function setPin(v){ try{ localStorage.setItem(PIN_KEY, v); }catch(e){} }
     pinMsg.style.color = isErr ? '#ff9aa4' : '#7dffc8';
   }
   if (btnSave) btnSave.addEventListener('click', function(){
+    if (throttle(_rateSave)) return;
+    _rateSave = Date.now();
     var newV = (pinNew.value||'').replace(/\D/g,'');
     if (!newV){ setPinMsg('Isi PIN baru', true); return; }
     if (newV.length !== 4){ setPinMsg('PIN harus 4 digit', true); return; }
+    if (btnSave.disabled) return;
+    btnSave.disabled = true; btnSave.textContent = 'Menyimpan...';
     setPin(newV);
     setPinMsg('PIN berhasil disimpan!', false);
     toast('PIN baru disimpan — pakai PIN baru untuk masuk');
     try{ confetti(); }catch(e){}
-    setTimeout(closeModal, 900);
+    setTimeout(function(){ btnSave.disabled=false; btnSave.textContent='Konfirmasi'; closeModal(); }, 900);
   });
   if (btnReset) btnReset.addEventListener('click', function(){
+    if (throttle(_rateSave)) return;
+    _rateSave = Date.now();
     setPin('6565');
     setPinMsg('PIN direset ke 6565', false);
     toast('PIN direset ke 6565');
